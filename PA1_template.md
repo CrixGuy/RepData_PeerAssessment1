@@ -38,7 +38,7 @@ The assignment will consist of several parts:
 
 
 ### 1. Loading and preprocessing the data
-1. **Load the data**
+1) **Load the data**
 
 ```r
 unzip(zipfile = "activity.zip", exdir = "data", overwrite = FALSE)
@@ -46,7 +46,7 @@ setwd(sprintf("%s/data", getwd()))
 activity <- read.csv(file = "activity.csv",header = TRUE)
 ```
 
-2. **Process/transform the data**
+2) **Process/transform the data**
 
 Several libraries were loaded at this point.
 
@@ -77,7 +77,7 @@ For this part of the assignment missing values in the dataset were ignored.
 activity_noNA <- activity[!is.na(activity$steps),]
 ```
 
-1. **Calculate the total number of steps taken per day**
+1) **Calculate the total number of steps taken per day**
 
 A new data frame was created for the total number of steps taken each day.
 
@@ -87,12 +87,12 @@ steps_taken <- activity_noNA %>%
                 summarise(total_steps = sum(steps))
 ```
 
-2. **Make a histogram of the total number of steps taken each day**
+2) **Make a histogram of the total number of steps taken each day**
 
 This is a histogram of the total number of steps taken each day
 ![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
-3. **Calculate and report the mean and median of the total number of steps taken per day**
+3) **Calculate and report the mean and median of the total number of steps taken per day**
 
 The mean and median of the total number of steps taken per day were then calculated:
 
@@ -108,7 +108,7 @@ median_steps_per_day <- median(steps_taken$total_steps)
 
 ### 3. Plotting the average daily activity pattern
 
-1. **Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis) mutate the interval column into a time class**
+1) **Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis) mutate the interval column into a time class**
 
 First, the average steps taken for each interval must be calculated. This was
 done by grouping the intervals and getting the mean for each step.
@@ -134,7 +134,7 @@ plot(x=avg_steps_at_intervals$interval,
 
 ![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
 
-2. **Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
+2) **Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
 
 This was computed using the following:
 
@@ -157,7 +157,7 @@ So, the answer to this question is interval **835**.
 
 *As can be noted from the data, there are a number of days/intervals where there are missing values (coded as NA). The presence of which may introduce bias into some calculations or summaries of the data*
 
-1. **Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)**
+1) **Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)**
 
 We can calculate and report the total number of missing values in the dataset with the following:
 
@@ -167,7 +167,7 @@ total_missing <- sum(is.na(activity))
 
 The total number of missing values is **2304**.
 
-2. **Devise a strategy for filling in all of the missing values in the dataset**
+2) **Devise a strategy for filling in all of the missing values in the dataset**
 
 It was decided that the mean for the 5-minute interval was the most suitable value for substituting the missing values.
 
@@ -183,7 +183,7 @@ Next, the data was then merged with the dataset created from finding the average
 mergedData <- merge(all_NAs, avg_steps_at_intervals)
 ```
 
-3. **Create a new dataset that is equal to the original dataset but with the missing data filled in**
+3) **Create a new dataset that is equal to the original dataset but with the missing data filled in**
 
 A new data set was then created for replacing the missing values, and the values were updated.
 
@@ -192,7 +192,7 @@ activity_imputed <- activity
 activity_imputed$steps[is.na(activity_imputed$steps)] <- mergedData$avg_steps
 ```
 
-4. **Make a histogram of the total number of steps taken each day and calculate**
+4) **Make a histogram of the total number of steps taken each day and calculate**
 
 First, a new data frame is created for the total number of steps taken each day (with imputed values).
 
@@ -252,7 +252,7 @@ With that said, the impacts of imputing missing data appear to be dependant on w
 
 ### 5. Comparing the differences in activity patterns between weekdays and weekends.
 
-1. **Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day**
+1) **Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day**
 
 For this part, a new column was created to show weekend/weekday based on the date.
 
@@ -272,7 +272,7 @@ avg_steps_taken_weekday_weekend <- activity_imputed %>%
                             summarise(average_steps = mean(steps))
 ```
 
-2. **Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days**
+2) **Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days**
 
 The panel plot was created using the lattice graphics package.
 

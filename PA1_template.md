@@ -1,9 +1,4 @@
----
-title: "Reproducible Research - Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research - Peer Assessment 1
 
 ### Introduction
 
@@ -44,7 +39,8 @@ The assignment will consist of several parts:
 
 ### 1. Loading and preprocessing the data
 1. **Load the data**
-```{r results='hide', warning=FALSE}
+
+```r
 unzip(zipfile = "activity.zip", exdir = "data", overwrite = FALSE)
 setwd(sprintf("%s/data", getwd()))
 activity <- read.csv(file = "activity.csv",header = TRUE)
@@ -53,7 +49,8 @@ activity <- read.csv(file = "activity.csv",header = TRUE)
 2. **Process/transform the data**
 
 Several libraries were loaded at this point.
-```{r message=FALSE}
+
+```r
 library(dplyr)
 library(knitr)
 library(lubridate)
@@ -61,26 +58,30 @@ library(lattice)
 ```
 
 The data frame was wrapped using the dplyr package for ease data manipulation.
-```{r}
+
+```r
 activity <- tbl_df(activity)
 ```
 
 The date column was modified to a date class, rather than a factor class.
-```{r}
+
+```r
 activity$date <- as.Date(activity$date)
 ```
 
 ### 2. Calculating the mean total number of steps taken per day
 
 For this part of the assignment missing values in the dataset were ignored.
-```{r}
+
+```r
 activity_noNA <- activity[!is.na(activity$steps),]
 ```
 
 1. **Calculate the total number of steps taken per day**
 
 A new data frame was created for the total number of steps taken each day.
-```{r}
+
+```r
 steps_taken <- activity_noNA %>% 
                 group_by(date) %>% 
                 summarise(total_steps = sum(steps))
@@ -89,24 +90,21 @@ steps_taken <- activity_noNA %>%
 2. **Make a histogram of the total number of steps taken each day**
 
 This is a histogram of the total number of steps taken each day
-```{r echo =FALSE}
-hist(x = steps_taken$total_steps, 
-     xlab = "",
-     main = "Histogram - Total number of steps taken each day (Removed NAs)")
-```
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
 3. **Calculate and report the mean and median of the total number of steps taken per day**
 
 The mean and median of the total number of steps taken per day were then calculated:
-```{r }
+
+```r
 total_steps_per_day <- sum(steps_taken$total_steps)
 mean_steps_per_day <- mean(steps_taken$total_steps)
 median_steps_per_day <- median(steps_taken$total_steps)
 ```
 
-* Mean: **`r sprintf("%0.2f", mean_steps_per_day)`**
+* Mean: **10766.19**
 
-* Median: **`r sprintf("%d", median_steps_per_day)`**
+* Median: **10765**
 
 ### 3. Plotting the average daily activity pattern
 
@@ -114,20 +112,18 @@ median_steps_per_day <- median(steps_taken$total_steps)
 
 First, the average steps taken for each interval must be calculated. This was
 done by grouping the intervals and getting the mean for each step.
-```{r}
+
+```r
 avg_steps_at_intervals <- activity_noNA %>% 
                             group_by(interval) %>% 
                             summarise(avg_steps = mean(steps))
 ```
 
-```{r echo = FALSE}
-plot2_title <- "Average number of steps taken, across all days"
-plot2_ylab <- "Average number of steps"
-plot2_xlab <- "Interval"
-```
+
 
 The time series plot was then created:
-```{r}
+
+```r
 plot(x=avg_steps_at_intervals$interval, 
      y=avg_steps_at_intervals$avg_steps, 
      type = "l", 
@@ -136,18 +132,26 @@ plot(x=avg_steps_at_intervals$interval,
      main = plot2_title)
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-11-1.png) 
+
 2. **Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?**
 
 This was computed using the following:
-``` {r}
+
+```r
 avg_steps_at_intervals %>% filter(avg_steps == max(avg_steps))
 ```
 
-```{r echo = FALSE}
-max_steps <- avg_steps_at_intervals %>% filter(avg_steps == max(avg_steps))
+```
+## Source: local data frame [1 x 2]
+## 
+##   interval avg_steps
+## 1      835  206.1698
 ```
 
-So, the answer to this question is interval **`r max_steps[,1]`**.
+
+
+So, the answer to this question is interval **835**.
 
 ### 4. Imputing missing values
 
@@ -156,30 +160,34 @@ So, the answer to this question is interval **`r max_steps[,1]`**.
 1. **Calculate and report the total number of missing values in the dataset (i.e. the total number of rows with NAs)**
 
 We can calculate and report the total number of missing values in the dataset with the following:
-```{r}
+
+```r
 total_missing <- sum(is.na(activity))
 ```
 
-The total number of missing values is **`r total_missing`**.
+The total number of missing values is **2304**.
 
 2. **Devise a strategy for filling in all of the missing values in the dataset**
 
 It was decided that the mean for the 5-minute interval was the most suitable value for substituting the missing values.
 
 To do this, a new data frame was created to contain only the rows with missing values.
-```{r}
+
+```r
 all_NAs <- activity[is.na(activity$steps),]
 ```
 
 Next, the data was then merged with the dataset created from finding the average steps for each interval (as was created earlier).
-```{r}
+
+```r
 mergedData <- merge(all_NAs, avg_steps_at_intervals)
 ```
 
 3. **Create a new dataset that is equal to the original dataset but with the missing data filled in**
 
 A new data set was then created for replacing the missing values, and the values were updated.
-```{r}
+
+```r
 activity_imputed <- activity
 activity_imputed$steps[is.na(activity_imputed$steps)] <- mergedData$avg_steps
 ```
@@ -187,29 +195,27 @@ activity_imputed$steps[is.na(activity_imputed$steps)] <- mergedData$avg_steps
 4. **Make a histogram of the total number of steps taken each day and calculate**
 
 First, a new data frame is created for the total number of steps taken each day (with imputed values).
-```{r}
+
+```r
 steps_taken_imputed <- activity_imputed %>% 
                     group_by(date) %>% 
                     summarise(total_steps = sum(steps))
-```                    
-
-Using the newly created data set with imputed values, a new histogram can now be produced.
-```{r echo=FALSE}
-hist(x = steps_taken_imputed$total_steps, 
-     xlab = "",
-     main = "Histogram - Total number of steps taken each day (imputed values)")
 ```
 
+Using the newly created data set with imputed values, a new histogram can now be produced.
+![](PA1_template_files/figure-html/unnamed-chunk-19-1.png) 
+
 **Report the *mean* and *median* total number of steps taken per day**
-```{r}
+
+```r
 imputed_total_steps_per_day <- sum(steps_taken_imputed$total_steps)
 imputed_mean_steps_per_day <- mean(steps_taken_imputed$total_steps)
 imputed_median_steps_per_day <- median(steps_taken_imputed$total_steps)
 ```
 
-* Mean: **`r sprintf("%0.2f",imputed_mean_steps_per_day)`**
+* Mean: **10766.19**
 
-* Median: **`r sprintf("%d", imputed_median_steps_per_day)`**
+* Median: **11015**
 
 
 **Do these values differ from the estimates from the first part of the assignment?**
@@ -218,7 +224,8 @@ At first sight of the histograms, the differences appear to be negligible. Howev
 is a difference.
 
 To show the difference, we'll format the appropriate data into a data frame:
-```{r}
+
+```r
 total_values <- c("imputed"=imputed_total_steps_per_day, "original"=total_steps_per_day)
 mean_values <- c(imputed_mean_steps_per_day, mean_steps_per_day)
 median_values <- c(imputed_median_steps_per_day, median_steps_per_day)
@@ -226,16 +233,16 @@ difference <- data.frame(total_values,mean_values,median_values)
 ```
 
 And show the difference, we'll output this data frame:
-```{r echo=FALSE}
-difference
+
+```
+##          total_values mean_values median_values
+## imputed      656737.5    10766.19         11015
+## original     570608.0    10766.19         10765
 ```
 
-```{r echo =FALSE,results='hide'}
-median_difference <- max(median_values) - min(median_values)
-total_difference <- max(total_values) - min(total_values)
-```
 
-This table shows that, whilst the **mean** has remained the same at **`r sprintf("%0.2f",mean_values[1])`** steps per day, the **median** value has changed dramatically with a difference of **`r median_difference`** steps per day, and with that the **total** has also changed, with a huge difference of **`r sprintf("%0.2f",total_difference)`** steps per day.
+
+This table shows that, whilst the **mean** has remained the same at **10766.19** steps per day, the **median** value has changed dramatically with a difference of **250** steps per day, and with that the **total** has also changed, with a huge difference of **86129.51** steps per day.
 
 **What is the impact of imputing missing data on the estimates of the total daily number of steps?**
 
@@ -248,7 +255,8 @@ With that said, the impacts of imputing missing data appear to be dependant on w
 1. **Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day**
 
 For this part, a new column was created to show weekend/weekday based on the date.
-```{r}
+
+```r
 activity_imputed <- activity_imputed %>%
                     mutate(day_type = ifelse(weekdays(date)=="Saturday", "weekend", 
                             ifelse(weekdays(date)=="Sunday", "weekend", "weekday")))
@@ -257,7 +265,8 @@ activity_imputed$day_type <- as.factor(activity_imputed$day_type)
 ```
 
 A new data frame was then created to show the average number of steps for each interval on both weekdays and weekends.
-```{r}
+
+```r
 avg_steps_taken_weekday_weekend <- activity_imputed %>% 
                             group_by(day_type, interval) %>% 
                             summarise(average_steps = mean(steps))
@@ -266,7 +275,8 @@ avg_steps_taken_weekday_weekend <- activity_imputed %>%
 2. **Make a panel plot containing a time series plot of the 5-minute interval and the average number of steps taken, averaged across all weekday days or weekend days**
 
 The panel plot was created using the lattice graphics package.
-```{r}
+
+```r
 xyplot(average_steps ~ interval | day_type, 
        data = avg_steps_taken_weekday_weekend, 
        layout = c(1,2),
@@ -274,7 +284,6 @@ xyplot(average_steps ~ interval | day_type,
        xlab="Interval",
        ylab="Average Steps",
        main="Average steps for weekend/weekdays at 5-minute intervals")
-
-
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-26-1.png) 
